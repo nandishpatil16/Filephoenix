@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FilePhoenix — Repair Any Broken File</title>
+<meta name="description" content="Upload any corrupted or damaged file. FilePhoenix repairs it and gives you back a working copy in seconds.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="/" class="logo">FilePhoenix</a>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#formats">Formats</a>
+      <a href="#upload" class="btn-primary">Repair a file</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">
+      <span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- MOBILE NAV -->
+<div class="mobile-overlay" id="mobileOverlay">
+  <button class="mobile-close" id="mobileClose">✕</button>
+  <nav>
+    <a href="#how" class="mob-link">How it works</a>
+    <a href="#formats" class="mob-link">Formats</a>
+    <a href="#upload" class="mob-link mob-cta">Repair a file →</a>
+  </nav>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">File recovery engine</div>
+      <h1>Your broken<br><em>files, fixed.</em></h1>
+      <p class="hero-sub">Upload any corrupted document, image, video, or archive. We repair the binary structure and give you a working file back — in seconds.</p>
+      <div class="hero-stats">
+        <div class="hstat">
+          <strong>50+</strong>
+          <span>file types</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <strong>500MB</strong>
+          <span>max file size</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <strong>Free</strong>
+          <span>no account needed</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right" id="upload">
+      <!-- Upload states managed by JS -->
+      <div class="upload-card" id="uploadCard">
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p class="drop-title">Drop your file here</p>
+          <p class="drop-sub">or <button class="inline-btn" id="browseBtn">browse from your device</button></p>
+          <input type="file" id="fileInput" style="display:none">
+        </div>
+
+        <div class="upload-meta">
+          <span class="meta-tag">PDF</span>
+          <span class="meta-tag">DOCX</span>
+          <span class="meta-tag">XLSX</span>
+          <span class="meta-tag">MP4</span>
+          <span class="meta-tag">MP3</span>
+          <span class="meta-tag">ZIP</span>
+          <span class="meta-tag">JPEG</span>
+          <span class="meta-tag">PNG</span>
+          <span class="meta-sep">and 42 more</span>
+        </div>
+
+        <!-- PROGRESS STATE -->
+        <div class="state-progress hidden" id="stateProgress">
+          <div class="progress-file-name" id="progressFileName">—</div>
+          <div class="progress-bar-outer">
+            <div class="progress-bar-inner" id="progressBarInner"></div>
+          </div>
+          <div class="progress-labels">
+            <span id="progressMsg">Uploading...</span>
+            <span id="progressPct">0%</span>
+          </div>
+          <div class="progress-steps" id="progressSteps"></div>
+        </div>
+
+        <!-- DONE STATE -->
+        <div class="state-done hidden" id="stateDone">
+          <div class="done-check">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <p class="done-title">Repair complete</p>
+          <p class="done-sub" id="doneSub">Your file has been restored.</p>
+          <div class="done-issues" id="doneIssues"></div>
+          <button class="btn-download" id="downloadBtn">Download repaired file</button>
+          <button class="btn-again" id="repairAgainBtn">Repair another →</button>
+        </div>
+
+        <!-- ERROR STATE -->
+        <div class="state-error hidden" id="stateError">
+          <p class="error-title">Something went wrong</p>
+          <p class="error-msg" id="errorMsg">—</p>
+          <button class="btn-again" id="tryAgainBtn">Try again →</button>
+        </div>
+      </div>
+
+      <p class="upload-note">Files are encrypted in transit and deleted within 1 hour.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-inner">
+    <p class="section-eyebrow">Process</p>
+    <h2 class="section-title">Three steps.<br>Zero friction.</h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-n">01</div>
+        <div class="step-body">
+          <h3>Upload your file</h3>
+          <p>Drag any corrupted file onto the uploader — documents, images, videos, archives. Up to 500MB. No account needed.</p>
+        </div>
+      </div>
+      <div class="step reveal" style="transition-delay:.08s">
+        <div class="step-n">02</div>
+        <div class="step-body">
+          <h3>We scan and repair</h3>
+          <p>Our engine inspects the binary structure, detects exactly what's broken, and rebuilds it — headers, signatures, EOF markers, chunk integrity.</p>
+        </div>
+      </div>
+      <div class="step reveal" style="transition-delay:.16s">
+        <div class="step-n">03</div>
+        <div class="step-body">
+          <h3>Download your fix</h3>
+          <p>A clean, repaired copy is ready to download. You get a full report of what was fixed, so you know exactly what happened.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FORMATS -->
+<section class="formats" id="formats">
+  <div class="section-inner">
+    <p class="section-eyebrow">Supported formats</p>
+    <h2 class="section-title">Works with<br>everything you use.</h2>
+
+    <div class="format-groups">
+      <div class="format-group reveal">
+        <h4>Documents</h4>
+        <div class="format-list">
+          <span>PDF</span><span>DOCX</span><span>DOC</span><span>XLSX</span>
+          <span>XLS</span><span>PPTX</span><span>PPT</span><span>ODT</span>
+          <span>ODS</span><span>ODP</span><span>TXT</span><span>RTF</span>
+        </div>
+      </div>
+      <div class="format-group reveal" style="transition-delay:.06s">
+        <h4>Images</h4>
+        <div class="format-list">
+          <span>JPEG</span><span>PNG</span><span>GIF</span><span>BMP</span>
+          <span>WEBP</span><span>TIFF</span><span>PSD</span><span>RAW</span>
+          <span>SVG</span><span>HEIC</span><span>ICO</span>
+        </div>
+      </div>
+      <div class="format-group reveal" style="transition-delay:.12s">
+        <h4>Video &amp; Audio</h4>
+        <div class="format-list">
+          <span>MP4</span><span>MOV</span><span>AVI</span><span>MKV</span>
+          <span>MP3</span><span>WAV</span><span>FLAC</span><span>AAC</span>
+          <span>M4A</span><span>OGG</span><span>WMV</span>
+        </div>
+      </div>
+      <div class="format-group reveal" style="transition-delay:.18s">
+        <h4>Archives &amp; Other</h4>
+        <div class="format-list">
+          <span>ZIP</span><span>RAR</span><span>7Z</span><span>TAR</span>
+          <span>GZ</span><span>SQLite</span><span>PST</span><span>EML</span>
+          <span>EPUB</span><span>JAR</span><span>APK</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why">
+  <div class="section-inner">
+    <div class="why-grid">
+      <div class="why-item reveal">
+        <div class="why-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h3>Private by design</h3>
+        <p>All uploads use TLS encryption. Files are processed in isolated containers and deleted from our servers within one hour of repair.</p>
+      </div>
+      <div class="why-item reveal" style="transition-delay:.06s">
+        <div class="why-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3>Usually under 30 seconds</h3>
+        <p>Repair jobs run immediately on our servers. Most files finish in under 30 seconds, even large ones. No queue, no waiting room.</p>
+      </div>
+      <div class="why-item reveal" style="transition-delay:.12s">
+        <div class="why-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <h3>Repair report included</h3>
+        <p>Every fixed file comes with a plain-English breakdown of exactly what was corrupted, what we fixed, and how confident we are in the result.</p>
+      </div>
+      <div class="why-item reveal" style="transition-delay:.18s">
+        <div class="why-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <h3>No install. Any device.</h3>
+        <p>Runs entirely in the browser. Works on desktop, tablet, and phone. No extensions, no software, no system access required.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-inner cta-inner">
+    <h2>Got a broken file?<br><em>Let's fix it.</em></h2>
+    <a href="#upload" class="btn-primary btn-large">Repair for free →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="section-inner footer-inner">
+    <div class="footer-left">
+      <span class="logo">FilePhoenix</span>
+      <p>AI-powered file repair.<br>Fast, private, free to start.</p>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#upload">Repair a file</a>
+        <a href="#formats">Formats</a>
+        <a href="#how">How it works</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="/privacy">Privacy policy</a>
+        <a href="/terms">Terms of use</a>
+      </div>
+    </div>
+  </div>
+  <div class="section-inner footer-bottom">
+    <p>© 2025 FilePhoenix. Files are permanently deleted within 1 hour.</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
