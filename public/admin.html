@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Admin — FilePhoenix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Admin-only styles */
+  .admin-wrap {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2rem 1.25rem;
+    background: var(--bg);
+  }
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 2.5rem 2rem;
+    width: 100%; max-width: 380px;
+    box-shadow: var(--shadow);
+  }
+  .login-card .logo { display: block; margin-bottom: .25rem; font-size: 1.2rem; }
+  .login-card h2 { font-size: 1.5rem; margin-bottom: .4rem; }
+  .login-card .sub { font-size: .85rem; color: var(--ink2); margin-bottom: 2rem; }
+  .login-card .form-group { margin-bottom: 1rem; }
+  .admin-panel { display: none; }
+  .admin-panel.show { display: block; }
+  .admin-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--ink);
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .admin-nav-inner {
+    max-width: 1160px; margin: 0 auto;
+    padding: 0 1.25rem; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .admin-nav .logo { color: #fff; }
+  .admin-badge {
+    background: var(--accent); color: #fff;
+    font-size: .68rem; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; padding: .2rem .6rem;
+    border-radius: 6px; margin-left: .5rem;
+  }
+  .admin-nav-right { display: flex; align-items: center; gap: 1rem; }
+  .admin-nav-right span { font-size: .82rem; color: rgba(255,255,255,.5); }
+  .admin-body { padding-top: 56px; }
+  .admin-header { padding: 2.5rem 0 1.5rem; border-bottom: 1px solid var(--border); }
+  .admin-header h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); }
+  .admin-header p  { font-size: .875rem; color: var(--ink2); margin-top: .35rem; }
+  .refresh-note { font-size: .75rem; color: var(--ink3); }
+  .admin-section { padding: 2rem 0; border-bottom: 1px solid var(--border); }
+  .admin-section-title {
+    font-family: var(--sans); font-size: .75rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 1.25rem;
+  }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .85rem;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r); padding: 1.25rem;
+  }
+  .kpi strong {
+    display: block;
+    font-family: var(--serif); font-size: 2rem; font-weight: 700;
+    line-height: 1; margin-bottom: .25rem;
+  }
+  .kpi span { font-size: .78rem; color: var(--ink3); }
+  .kpi.accent strong { color: var(--accent); }
+  .kpi.green  strong { color: var(--green);  }
+  .bar-row    { display: flex; align-items: center; gap: .75rem; margin-bottom: .65rem; }
+  .bar-label  { width: 58px; font-size: .8rem; color: var(--ink2); text-align: right; flex-shrink: 0; }
+  .bar-track  { flex: 1; background: var(--border); border-radius: 100px; height: 8px; overflow: hidden; }
+  .bar-fill   { height: 100%; background: var(--accent); border-radius: 100px; transition: width 1s ease; width: 0%; }
+  .bar-count  { font-size: .8rem; color: var(--ink3); min-width: 28px; }
+  .table-wrap { overflow-x: auto; margin-top: .5rem; }
+  .a-table    { width: 100%; border-collapse: collapse; font-size: .82rem; min-width: 480px; }
+  .a-table th { text-align: left; padding: .5rem .75rem; font-size: .7rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .a-table td { padding: .65rem .75rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+  .a-table tr:last-child td { border-bottom: none; }
+  .a-table tr:hover td { background: var(--bg); }
+  .td-name { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge-done  { display: inline-block; background: var(--green-bg); color: var(--green); border-radius: 6px; padding: .15rem .5rem; font-size: .72rem; font-weight: 600; }
+  .badge-error { display: inline-block; background: #FEF2F2; color: #B91C1C; border-radius: 6px; padding: .15rem .5rem; font-size: .72rem; font-weight: 600; }
+  .badge-pending { display: inline-block; background: var(--bg); color: var(--ink3); border-radius: 6px; padding: .15rem .5rem; font-size: .72rem; }
+  .empty-row td { text-align: center; padding: 2rem; color: var(--ink3); }
+  .admin-footer { padding: 2rem 0; }
+  .admin-footer p { font-size: .78rem; color: var(--ink3); }
+  @media (min-width: 640px) {
+    .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+    .admin-nav-inner { padding: 0 2rem; }
+  }
+  @media (min-width: 900px) {
+    .admin-header { padding: 3rem 0 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="admin-wrap" id="loginScreen">
+  <div class="login-card">
+    <a href="/" class="logo">FilePhoenix</a>
+    <h2>Admin panel</h2>
+    <p class="sub">This area is private. Enter your admin credentials to continue.</p>
+    <form id="adminLoginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="adminUser" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="adminPass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <p class="auth-error hidden" id="adminLoginErr"></p>
+      <button type="submit" class="btn-primary btn-full" style="margin-top:.5rem">Sign in to admin</button>
+    </form>
+    <p style="font-size:.75rem;color:var(--ink3);text-align:center;margin-top:1rem">
+      <a href="/" style="color:var(--ink3)">← Back to FilePhoenix</a>
+    </p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin-panel" id="adminPanel">
+
+  <!-- Admin nav -->
+  <header class="admin-nav">
+    <div class="admin-nav-inner">
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <a href="/" class="logo" style="font-size:1.1rem">FilePhoenix</a>
+        <span class="admin-badge">Admin</span>
+      </div>
+      <div class="admin-nav-right">
+        <span id="adminNavUser"></span>
+        <button class="btn-ghost" id="adminLogout" style="color:rgba(255,255,255,.5)">Log out</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-body">
+    <div class="section-inner">
+
+      <!-- Header -->
+      <div class="admin-header">
+        <h1>Dashboard</h1>
+        <p>All data is live from the database. <span class="refresh-note" id="lastRefresh"></span></p>
+      </div>
+
+      <!-- KPIs -->
+      <div class="admin-section">
+        <p class="admin-section-title">Overview</p>
+        <div class="kpi-grid">
+          <div class="kpi accent"><strong id="kTotalRepairs">—</strong><span>Total files repaired</span></div>
+          <div class="kpi"><strong id="kTodayRepairs">—</strong><span>Repaired today</span></div>
+          <div class="kpi green"><strong id="kSuccessRate">—</strong><span>Success rate</span></div>
+          <div class="kpi"><strong id="kTotalUsers">—</strong><span>Registered users</span></div>
+          <div class="kpi"><strong id="kVisitors">—</strong><span>Unique visitors</span></div>
+          <div class="kpi"><strong id="kTotalJobs">—</strong><span>Total jobs submitted</span></div>
+        </div>
+      </div>
+
+      <!-- Repairs by type -->
+      <div class="admin-section">
+        <p class="admin-section-title">Repairs by file type</p>
+        <div id="typeChart"><p style="font-size:.85rem;color:var(--ink3)">No data yet.</p></div>
+      </div>
+
+      <!-- Recent repairs -->
+      <div class="admin-section">
+        <p class="admin-section-title">Recent repair jobs</p>
+        <div class="table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>File name</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Status</th>
+                <th>Time</th>
+              </tr>
+            </thead>
+            <tbody id="repairsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Registered users -->
+      <div class="admin-section">
+        <p class="admin-section-title">Registered users</p>
+        <div class="table-wrap">
+          <table class="a-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Repairs done</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="usersTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-footer">
+        <p>Auto-refreshes every 30 seconds. All times in local timezone. <a href="/" style="color:var(--ink3)">← Back to site</a></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_TOKEN_KEY = 'fp_admin_token';
+
+// ---- Auth ----
+document.getElementById('adminLoginForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  const err = document.getElementById('adminLoginErr');
+  err.classList.add('hidden');
+  btn.textContent = 'Signing in...'; btn.disabled = true;
+
+  try {
+    const res  = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: document.getElementById('adminUser').value,
+        password: document.getElementById('adminPass').value
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      err.textContent = data.error;
+      err.classList.remove('hidden');
+    } else {
+      localStorage.setItem(ADMIN_TOKEN_KEY, data.token);
+      showPanel();
+    }
+  } catch (_) {
+    err.textContent = 'Connection error. Try again.';
+    err.classList.remove('hidden');
+  }
+  btn.textContent = 'Sign in to admin'; btn.disabled = false;
+};
+
+document.getElementById('adminLogout').onclick = () => {
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  document.getElementById('adminPanel').classList.remove('show');
+  document.getElementById('loginScreen').style.display = 'flex';
+};
+
+function getAdminToken() { return localStorage.getItem(ADMIN_TOKEN_KEY); }
+
+async function checkAdminSession() {
+  const token = getAdminToken();
+  if (!token) return;
+  try {
+    const res = await fetch('/api/admin/verify', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('adminNavUser').textContent = data.username;
+      showPanel();
+    } else {
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+    }
+  } catch (_) {}
+}
+
+function showPanel() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').classList.add('show');
+  loadStats();
+}
+
+// ---- Stats ----
+function fmtBytes(b) {
+  if (!b) return '—';
+  if (b < 1024) return b + ' B';
+  if (b < 1024*1024) return (b/1024).toFixed(1) + ' KB';
+  return (b/(1024*1024)).toFixed(1) + ' MB';
+}
+function fmtTime(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+async function loadStats() {
+  const token = getAdminToken();
+  if (!token) return;
+
+  try {
+    const res  = await fetch('/api/stats', { headers: { Authorization: 'Bearer ' + token } });
+    if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+      location.reload();
+      return;
+    }
+    const d = await res.json();
+
+    // KPIs
+    document.getElementById('kTotalRepairs').textContent = d.totalRepairs.toLocaleString();
+    document.getElementById('kTodayRepairs').textContent = d.todayRepairs.toLocaleString();
+    document.getElementById('kSuccessRate').textContent  = d.successRate + '%';
+    document.getElementById('kTotalUsers').textContent   = d.totalUsers.toLocaleString();
+    document.getElementById('kVisitors').textContent     = d.totalVisitors.toLocaleString();
+    document.getElementById('kTotalJobs').textContent    = (d.totalRepairs + (d.totalRepairs - Math.floor(d.totalRepairs * d.successRate / 100))).toLocaleString();
+
+    // Bar chart by type
+    const chart = document.getElementById('typeChart');
+    if (d.byType && d.byType.length) {
+      const max = d.byType[0].count;
+      chart.innerHTML = d.byType.map(row => `
+        <div class="bar-row">
+          <span class="bar-label">${row.file_type}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.round((row.count/max)*100)}%"></div></div>
+          <span class="bar-count">${row.count}</span>
+        </div>`).join('');
+    } else {
+      chart.innerHTML = '<p style="font-size:.85rem;color:var(--ink3)">No repairs yet.</p>';
+    }
+
+    // Recent repairs table
+    const rtbody = document.getElementById('repairsTbody');
+    if (d.recent && d.recent.length) {
+      rtbody.innerHTML = d.recent.map(r => `
+        <tr>
+          <td class="td-name" title="${r.original_name}">${r.original_name || '—'}</td>
+          <td>${r.file_type || '—'}</td>
+          <td>${fmtBytes(r.file_size)}</td>
+          <td><span class="badge-${r.status}">${r.status}</span></td>
+          <td>${fmtTime(r.created_at)}</td>
+        </tr>`).join('');
+    } else {
+      rtbody.innerHTML = '<tr class="empty-row"><td colspan="5">No repair jobs yet.</td></tr>';
+    }
+
+    // Users table
+    const utbody = document.getElementById('usersTbody');
+    if (d.users && d.users.length) {
+      utbody.innerHTML = d.users.map(u => `
+        <tr>
+          <td>${u.name || '—'}</td>
+          <td>${u.email}</td>
+          <td>${u.repair_count}</td>
+          <td>${fmtTime(u.created_at)}</td>
+        </tr>`).join('');
+    } else {
+      utbody.innerHTML = '<tr class="empty-row"><td colspan="4">No users signed up yet.</td></tr>';
+    }
+
+    document.getElementById('lastRefresh').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+
+  } catch (e) {
+    console.error('Failed to load stats', e);
+  }
+}
+
+// Init
+checkAdminSession();
+setInterval(() => { if (getAdminToken()) loadStats(); }, 30000);
+</script>
+</body>
+</html>
